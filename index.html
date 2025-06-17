@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark"> <!-- Atributo data-theme para el tema -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-key="page_title">Portafolio // Jorge Cuevas :: Unified Experience</title>
+
+    <!-- FUENTES Y ICONOS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- ESTILOS CSS -->
+    <style>
+        :root {
+            /* Tema Oscuro (Cyberpunk) por defecto */
+            --primary-color: #00ffff;
+            --secondary-color: #f5f5f5;
+            --bg-color: #0d0d1a;
+            --dark-grey: #1a1a2e;
+            --accent-pink: #ff00c1;
+            --font-heading: 'Orbitron', sans-serif;
+            --font-body: 'Share Tech Mono', monospace;
+            --text-color-primary: var(--secondary-color);
+            --text-color-secondary: rgba(245, 245, 245, 0.7);
+            --card-border-color: rgba(0, 255, 255, 0.2);
+            --nav-bg-color: rgba(13, 13, 26, 0.8);
+            --modal-bg-color: rgba(0, 0, 0, 0.9);
+        }
+
+        html[data-theme='light'] {
+            /* Variables para el Tema Claro */
+            --primary-color: #0056b3; /* Azul oscuro profesional */
+            --secondary-color: #333;  /* Texto principal oscuro */
+            --bg-color: #f4f4f9;      /* Fondo gris muy claro */
+            --dark-grey: #ffffff;     /* Tarjetas blancas */
+            --accent-pink: #d9006c;   /* Acento vibrante */
+            --text-color-primary: #111;
+            --text-color-secondary: #555;
+            --card-border-color: rgba(0, 86, 179, 0.2);
+            --nav-bg-color: rgba(255, 255, 255, 0.8);
+            --modal-bg-color: rgba(0, 0, 0, 0.8);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            background-color: var(--bg-color); color: var(--text-color-primary); font-family: var(--font-body);
+            line-height: 1.6; overflow-x: hidden; transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* --- PRELOADER (Universal) --- */
+        #preloader { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background-color: var(--bg-color); z-index: 10000; display: flex; justify-content: center; align-items: center; flex-direction: column; transition: opacity 0.75s ease, visibility 0.75s ease; }
+        .preloader-content { text-align: center; }
+        .preloader-text { font-family: var(--font-body); font-size: 1.5rem; color: var(--primary-color); text-shadow: 0 0 10px var(--primary-color); margin-bottom: 1rem; }
+        .progress-bar-container { width: 250px; height: 10px; border: 1px solid var(--primary-color); }
+        .progress-bar { width: 0; height: 100%; background-color: var(--primary-color); animation: loadProgress 2s ease-out forwards; }
+        @keyframes loadProgress { from { width: 0%; } to { width: 100%; } }
+        .cursor { animation: blink 0.7s infinite; } @keyframes blink { 50% { opacity: 0; } }
+        #preloader.hidden { opacity: 0; visibility: hidden; }
+
+        /* --- FONDOS ANIMADOS ADAPTATIVOS --- */
+        #vortex-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; display: none; }
+        .mobile-background { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; display: none; }
+        .mobile-background .data-stream { position: absolute; top: 0; left: 0; width: 1px; height: 100%; background: linear-gradient(to bottom, transparent, var(--primary-color), transparent); opacity: 0.2; animation: flow 20s linear infinite; }
+        @keyframes flow { 0% { transform: translateY(-100vh); } 100% { transform: translateY(100vh); } }
+        .mobile-background .data-stream:nth-child(1) { left: 10%; animation-duration: 15s; }
+        .mobile-background .data-stream:nth-child(2) { left: 25%; animation-duration: 25s; animation-delay: -5s; }
+        .mobile-background .data-stream:nth-child(3) { left: 50%; animation-duration: 12s; }
+        .mobile-background .data-stream:nth-child(4) { left: 75%; animation-duration: 22s; animation-delay: -10s; }
+        .mobile-background .data-stream:nth-child(5) { left: 90%; animation-duration: 18s; }
+
+        /* --- CURSOR Y SCROLL-LOG (Solo Escritorio) --- */
+        .custom-cursor { position: fixed; left: 0; top: 0; width: 24px; height: 24px; border: 2px solid var(--primary-color); border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 11000; transition: transform 0.1s, background-color 0.2s; }
+        .custom-cursor.hover { transform: translate(-50%, -50%) scale(1.5); background-color: rgba(0,255,255,0.2); }
+        #scroll-log { position: fixed; bottom: 20px; right: 20px; width: 200px; height: 150px; font-size: 0.75rem; color: rgba(0, 255, 255, 0.5); overflow: hidden; pointer-events: none; z-index: 999; }
+        .log-entry { animation: fadeInAndOut 5s forwards; white-space: nowrap; }
+        @keyframes fadeInAndOut { 0% { opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { opacity: 0; } }
+
+        /* --- NAVEGACIÓN (Universal y Adaptativa) --- */
+        .navbar { position: fixed; top: 0; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 1rem 5%; background-color: var(--nav-bg-color); backdrop-filter: blur(10px); border-bottom: 1px solid var(--card-border-color); z-index: 1000; transition: background-color 0.3s, border-color 0.3s; }
+        .nav-logo { font-family: var(--font-heading); color: var(--primary-color); text-decoration: none; font-size: 1.5rem; font-weight: 700; z-index: 1002; }
+        .nav-menu { list-style: none; display: flex; gap: 1.8rem; align-items: center; }
+        .nav-link { color: var(--text-color-primary); text-decoration: none; font-size: 0.9rem; transition: color 0.3s, text-shadow 0.3s; }
+        .nav-link:hover { color: var(--primary-color); text-shadow: 0 0 8px var(--primary-color); }
+        .hamburger-btn { display: none; z-index: 1002; }
+        .mobile-nav { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background-color: var(--bg-color); z-index: 1001; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 2rem; transform: translateY(-100%); transition: transform 0.5s ease-in-out, background-color 0.3s ease; }
+        .mobile-nav.active { transform: translateY(0); }
+        .mobile-nav .nav-link { font-size: 1.8rem; }
+        
+        /* Controles de Tema e Idioma */
+        .nav-controls { display: flex; align-items: center; gap: 1.5rem; margin-left: 2rem; }
+        .lang-switcher button { background: none; border: 1px solid transparent; color: var(--text-color-primary); font-family: var(--font-body); cursor: pointer; padding: 0.2rem 0.5rem; transition: color 0.3s, border-color 0.3s; }
+        .lang-switcher button.active { color: var(--primary-color); border-color: var(--primary-color); }
+        .theme-switcher { display: flex; align-items: center; }
+        .theme-switcher .switch { position: relative; display: inline-block; width: 50px; height: 24px; }
+        .theme-switcher .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--dark-grey); transition: .4s; border-radius: 24px; border: 1px solid var(--primary-color); }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 3px; background-color: var(--primary-color); transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--dark-grey); }
+        input:checked + .slider:before { transform: translateX(26px); }
+
+        /* Estilos del Contenido Principal (Universal) */
+        .section-full { min-height: 100vh; display: flex; justify-content: center; align-items: center; text-align: center; padding: 0 5%;}
+        .section-container { padding: 6rem 5%; max-width: 1200px; margin: 0 auto; opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
+        .section-container.visible { opacity: 1; transform: translateY(0); }
+        .section-title { font-family: var(--font-heading); font-size: 2.5rem; color: var(--primary-color); text-align: center; margin-bottom: 3rem; position: relative; }
+        .section-title::before, .section-title::after { content: attr(data-text); position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; background: var(--bg-color); transition: background-color 0.3s ease; }
+        .section-title::before { left: 2px; text-shadow: -2px 0 var(--accent-pink); animation: glitch-1 2s infinite linear alternate-reverse; }
+        .section-title::after { left: -2px; text-shadow: -2px 0 var(--primary-color), 2px 2px var(--accent-pink); animation: glitch-2 2s infinite linear alternate-reverse; }
+        @keyframes glitch-1 { 0%, 20%, 60%, 100% { clip-path: inset(45% 0 50% 0); } 40% { clip-path: inset(10% 0 85% 0); } 80% { clip-path: inset(70% 0 10% 0); } }
+        @keyframes glitch-2 { 0%, 20%, 60%, 100% { clip-path: inset(2% 0 95% 0); } 40% { clip-path: inset(90% 0 5% 0); } 80% { clip-path: inset(40% 0 45% 0); } }
+        
+        .cascade-item { opacity: 0; transform: translateY(20px); transition: opacity 0.5s ease-out, transform 0.5s ease-out; }
+        .section-container.visible .cascade-item { opacity: 1; transform: translateY(0); }
+
+        .hero-content h1 { font-family: var(--font-heading); font-size: 4rem; margin-bottom: 1rem; }
+        .highlight { color: var(--primary-color); text-shadow: 0 0 10px var(--primary-color); }
+        #typewriter { font-size: 1.5rem; color: var(--secondary-color); min-height: 2.2rem; }
+        .cta-button { display: inline-block; margin-top: 2rem; padding: 0.8rem 2rem; border: 2px solid var(--primary-color); color: var(--primary-color); text-decoration: none; font-family: var(--font-heading); transition: background-color 0.3s, color 0.3s, box-shadow 0.3s; }
+        .cta-button:hover { background-color: var(--primary-color); color: var(--bg-color); box-shadow: 0 0 20px var(--primary-color); }
+        
+        .about-content { display: flex; align-items: center; gap: 3rem; text-align: left; }
+        .about-image { flex-shrink: 0; width: 300px; }
+        .about-image img { width: 100%; border-radius: 5px; border: 3px solid var(--primary-color); box-shadow: 0 0 15px rgba(0, 255, 255, 0.5); }
+        
+        .skills-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1.5rem; }
+        .skill-card { background-color: var(--dark-grey); border: 1px solid var(--card-border-color); padding: 1.5rem; text-align: center; border-radius: 5px; transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s, background-color 0.3s; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .skill-card:hover { transform: translateY(-10px); border-color: var(--primary-color); box-shadow: 0 0 20px var(--primary-color); }
+        .skill-card i { font-size: 2.8rem; color: var(--primary-color); margin-bottom: 1rem; width: 40px; text-align: center; }
+        .skill-card span { display: block; font-size: 0.9rem; }
+        
+        .projects-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; text-align: left;}
+        .project-card { background-color: var(--dark-grey); border: 1px solid var(--card-border-color); border-radius: 5px; overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s; }
+        .project-card:hover { transform: scale(1.03); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); }
+        .project-card img, .project-card video { width: 100%; display: block; aspect-ratio: 16 / 9; object-fit: cover; }
+        .project-info { padding: 1.5rem; }
+        .project-tags span { background-color: rgba(0, 255, 255, 0.1); color: var(--primary-color); padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.8rem; margin: 0.5rem 0.5rem 0.5rem 0; display: inline-block; }
+        html[data-theme='light'] .project-tags span { background-color: rgba(0, 86, 179, 0.1); }
+        .project-links { margin-top: 1rem; }
+        .project-links a { color: var(--text-color-primary); text-decoration: none; margin-right: 1.5rem; transition: color 0.3s ease; }
+        .project-links a:hover { color: var(--primary-color); }
+        .project-links i { margin-right: 0.5rem; }
+
+        .certs-grid, .badges-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; }
+        .cert-card { background-color: var(--dark-grey); border: 1px solid var(--card-border-color); padding: 1rem; text-align: center; border-radius: 5px; transition: transform 0.3s, background-color 0.3s; }
+        .cert-card:hover { transform: translateY(-5px); }
+        .cert-card a.cert-link { display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; color: var(--text-color-primary); height: 100%; }
+        .cert-card a.cert-link i { font-size: 3rem; color: var(--primary-color); margin-bottom: 1rem; }
+        .cert-card p { font-size: 0.9rem; }
+        .cert-card a.info-link { font-size: 0.8rem; color: var(--primary-color); text-decoration: none; margin-top: 0.5rem; display: inline-block; }
+        .cert-card a.info-link:hover { text-decoration: underline; }
+
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: var(--modal-bg-color); animation: zoomIn 0.3s ease; }
+        .modal.active { display: flex !important; justify-content: center; align-items: center; }
+        .modal-content-container { position: relative; max-width: 90vw; max-height: 90vh; display: flex; justify-content: center; align-items: center; }
+        .modal-content-container img, .modal-content-container video { display: block; width: auto; height: auto; max-width: 100%; max-height: 90vh; object-fit: contain; border-radius: 5px; box-shadow: 0 0 30px rgba(0, 255, 255, 0.3); }
+        .close-modal { position: absolute; top: 15px; right: 35px; color: #f1f1f1; font-size: 40px; font-weight: bold; cursor: pointer; transition: color 0.3s; z-index: 2001; }
+        .close-modal:hover { color: var(--primary-color); text-shadow: 0 0 10px var(--primary-color); }
+        @keyframes zoomIn { from {transform: scale(0)} to {transform: scale(1)} }
+
+        footer { text-align: center; padding: 2rem; border-top: 1px solid var(--card-border-color); font-size: 0.9rem; color: var(--text-color-secondary); transition: border-color 0.3s, color 0.3s; }
+
+        /* --- MEDIA QUERIES --- */
+        @media (min-width: 769px) {
+            #vortex-canvas { display: block; }
+        }
+        @media (max-width: 992px) { /* Ajuste para que los controles no se superpongan tan rápido */
+            .nav-menu { gap: 1rem; }
+            .nav-controls { margin-left: 1rem; gap: 1rem;}
+        }
+
+        @media (max-width: 768px) {
+            .nav-menu, .custom-cursor, #scroll-log { display: none; }
+            .mobile-background { display: block; }
+            .hamburger-btn { display: block; background: none; border: none; padding: 0; cursor: pointer; }
+            .hamburger-btn .line { display: block; width: 30px; height: 3px; background-color: var(--text-color-primary); margin: 6px 0; transition: transform 0.3s, opacity 0.3s, background-color 0.3s; }
+            .hamburger-btn.active .line1 { transform: translateY(9px) rotate(45deg); }
+            .hamburger-btn.active .line2 { opacity: 0; }
+            .hamburger-btn.active .line3 { transform: translateY(-9px) rotate(-45deg); }
+            
+            .mobile-nav .nav-controls { flex-direction: column; gap: 2rem; margin-top: 2rem; } /* Controles en nav móvil */
+
+            .hero-content h1 { font-size: 2.5rem; }
+            #typewriter { font-size: 1.1rem; }
+            .section-container { padding: 4rem 5%; }
+            .section-title { font-size: 2rem; }
+            .about-content { flex-direction: column; text-align: center; }
+            .about-image { max-width: 250px; }
+            .projects-grid { grid-template-columns: 1fr; }
+        }
+
+        .project-media-container { position: relative; cursor: pointer; overflow: hidden; background-color: #000; }
+        .project-media { width: 100%; display: block; min-height: 200px; max-height: 280px; object-fit: contain; background-color: var(--dark-grey); transition: transform 0.3s ease, background-color 0.3s; }
+        .project-media-container:hover .project-media { transform: scale(1.05); }
+        .zoom-icon { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); color: white; display: flex; justify-content: center; align-items: center; font-size: 3rem; opacity: 0; transition: opacity 0.3s ease; }
+        .project-media-container:hover .zoom-icon { opacity: 1; }
+    </style>
+</head>
+<body>
+    <div id="preloader">
+        <div class="preloader-content">
+            <div class="preloader-text" data-key="preloader_text">INICIALIZANDO SISTEMA...<span class="cursor">|</span></div>
+            <div class="progress-bar-container"><div class="progress-bar"></div></div>
+        </div>
+    </div>
+    
+    <div class="custom-cursor"></div>
+    <canvas id="vortex-canvas"></canvas>
+    <div class="mobile-background">
+        <div class="data-stream"></div><div class="data-stream"></div><div class="data-stream"></div>
+        <div class="data-stream"></div><div class="data-stream"></div>
+    </div>
+    <div id="scroll-log"></div>
+
+    <header>
+        <nav class="navbar">
+            <a href="#inicio" class="nav-logo">J̷̷o̷̷r̷̷g̷̷e̷ ̷C̷̷u̷̷e̷̷v̷a̷̷s̷</a>
+            <ul class="nav-menu">
+                <li><a href="#sobre-mi" class="nav-link" data-key="nav_about">01_SOBRE_MI</a></li>
+                <li><a href="#habilidades" class="nav-link" data-key="nav_skills">02_HABILIDADES</a></li>
+                <li><a href="#proyectos" class="nav-link" data-key="nav_projects">03_PROYECTOS</a></li>
+                <li><a href="#certificados" class="nav-link" data-key="nav_certs">04_CERTIFICADOS</a></li>
+                <li><a href="#badges" class="nav-link" data-key="nav_badges">05_BADGES</a></li>
+                <li><a href="#contacto" class="nav-link" data-key="nav_contact">06_CONTACTO</a></li>
+                
+                <li class="nav-controls">
+                    <div class="lang-switcher">
+                        <button id="lang-es">ES</button>
+                        <button id="lang-en">EN</button>
+                    </div>
+                    <div class="theme-switcher">
+                        <label class="switch">
+                            <input type="checkbox" id="theme-toggle">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </li>
+            </ul>
+            <button class="hamburger-btn" id="hamburger-btn" aria-label="Abrir menú">
+                <span class="line line1"></span><span class="line line2"></span><span class="line line3"></span>
+            </button>
+        </nav>
+    </header>
+    
+    <div class="mobile-nav" id="mobile-nav">
+        <a href="#sobre-mi" class="nav-link" data-key="nav_about_mob">01_SOBRE_MI</a>
+        <a href="#habilidades" class="nav-link" data-key="nav_skills_mob">02_HABILIDADES</a>
+        <a href="#proyectos" class="nav-link" data-key="nav_projects_mob">03_PROYECTOS</a>
+        <a href="#certificados" class="nav-link" data-key="nav_certs_mob">04_CERTIFICADOS</a>
+        <a href="#badges" class="nav-link" data-key="nav_badges_mob">05_BADGES</a>
+        <a href="#contacto" class="nav-link" data-key="nav_contact_mob">06_CONTACTO</a>
+        <div class="nav-controls">
+            <div class="lang-switcher">
+                <button id="lang-es-mob">ES</button>
+                <button id="lang-en-mob">EN</button>
+            </div>
+            <div class="theme-switcher">
+                <label class="switch">
+                    <input type="checkbox" id="theme-toggle-mob">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <main>
+        <section id="inicio" class="section-full">
+            <div class="hero-content">
+                <h1 data-key="hero_title">Buenas, soy <span class="highlight">Jorge Cuevas</span></h1>
+                <p id="typewriter"></p>
+                <a href="#proyectos" class="cta-button" data-key="hero_cta">>> Ver mis Proyectos</a>
+            </div>
+        </section>
+
+        <section id="sobre-mi" class="section-container">
+            <h2 class="section-title" data-text="01_SOBRE_MI" data-key="about_title">01_SOBRE_MI</h2>
+            <div class="about-content">
+                <div class="about-image cascade-item">
+                    <!-- IMAGEN CORREGIDA CON ENLACE PÚBLICO -->
+                    <img src="https://i.imgur.com/G9f6x2s.jpeg" alt="Foto Profesional de Jorge Cuevas">
+                </div>
+                <div class="about-text cascade-item">
+                    <h3 data-key="about_subtitle">Estudiante de Ingeniería en Computer Sciences & Desarrollador de Software</h3>
+                    <p data-key="about_p">Apasionado por la tecnología, actualmente curso mi último año de Ingeniería en Ciencias de la Computación con un fuerte enfoque en desarrollo de software, inteligencia artificial y ciberseguridad. Me motiva crear soluciones tecnológicas innovadoras para resolver problemas del mundo real. En mi tiempo libre disfruto de los videojuegos y el ejercicio físico.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="habilidades" class="section-container">
+            <h2 class="section-title" data-text="02_HABILIDADES" data-key="skills_title">02_HABILIDADES</h2>
+            <div class="skills-grid">
+                <div class="skill-card cascade-item"><i class="fab fa-html5"></i><span>HTML</span></div>
+                <div class="skill-card cascade-item"><i class="fab fa-css3-alt"></i><span>CSS</span></div>
+                <div class="skill-card cascade-item"><i class="fab fa-js-square"></i><span>JavaScript</span></div>
+                <div class="skill-card cascade-item"><i class="fab fa-php"></i><span>PHP</span></div>
+                <div class="skill-card cascade-item"><i class="fab fa-python"></i><span>Python</span></div>
+                <div class="skill-card cascade-item"><i class="fab fa-java"></i><span>Java</span></div>
+                <div class="skill-card cascade-item"><i class="fas fa-hashtag"></i><span>C#</span></div>
+                <div class="skill-card cascade-item"><i class="fas fa-file-code"></i><span>C</span></div>
+                <div class="skill-card cascade-item"><i class="fas fa-microchip"></i><span>Ensamblador</span></div>
+                <div class="skill-card cascade-item"><i class="fas fa-database"></i><span>SQL</span></div>
+                <div class="skill-card cascade-item"><i class="fab fa-aws"></i><span>AWS</span></div>
+                <div class="skill-card cascade-item"><i class="fas fa-fire"></i><span>Firebase</span></div>
+                <div class="skill-card cascade-item"><i class="fas fa-code"></i><span>XML</span></div>
+                <div class="skill-card cascade-item"><i class="fas fa-window-maximize"></i><span>XAML</span></div>
+            </div>
+        </section>
+
+        <section id="proyectos" class="section-container">
+            <h2 class="section-title" data-text="03_PROYECTOS" data-key="projects_title">03_PROYECTOS DESTACADOS</h2>
+            <div class="projects-grid">
+                <div class="project-card cascade-item">
+                    <div class="project-media-container">
+                        <!-- IMAGEN CORREGIDA CON ENLACE PÚBLICO -->
+                        <img src="img/os-beaglebone.png" alt="Diagrama del Sistema Operativo BareMetal" class="project-media">
+                        <div class="zoom-icon"><i class="fas fa-search-plus"></i></div>
+                    </div>
+                    <div class="project-info">
+                        <h3 data-key="p1_title">BareMetal OS para BeagleBone Black Rev C</h3>
+                        <p data-key="p1_desc">Un sistema operativo multiproceso para la placa BeagleBone Black, desarrollado desde cero. Incluye un planificador cooperativo round-robin, gestión de memoria y una CLI ya integrada en la BeagleBone.</p>
+                        <div class="project-tags"><span data-key="p1_tag1">Lenguajes de bajo nivel</span><span data-key="p1_tag2">Sistemas Operativos</span></div>
+                        <div class="project-links"><a href="https://github.com/Jorge-Cuevas90003/BareMetal-OS-BeagleBone" target="_blank"><i class="fab fa-github"></i> <span data-key="code_link">Código</span></a></div>
+                    </div>
+                </div>
+                <div class="project-card cascade-item">
+                     <div class="project-media-container">
+                        <!-- IMAGEN CORREGIDA CON ENLACE PÚBLICO -->
+                        <img src="img/app-demo.gif" alt="Demo animado de la aplicación Android Community Hub" class="project-media">
+                        <div class="zoom-icon"><i class="fas fa-search-plus"></i></div>
+                    </div>
+                      <div class="project-info">
+                        <h3 data-key="p2_title">Android Community Hub</h3>
+                        <p data-key="p2_desc">Aplicación Android nativa que funciona como un sistema de gestión comunitaria, con votaciones en tiempo real, visor de documentos y módulos de transparencia financiera. Un proyecto de software completo que aborda una necesidad del mundo real.</p>
+                        <div class="project-tags"><span>Java, XML</span><span data-key="p2_tag2">Android Nativo</span><span>Firebase</span></div>
+                        <div class="project-links"><a href="https://github.com/Jorge-Cuevas90003/Android-Community-Hub" target="_blank"><i class="fab fa-github"></i> <span data-key="code_link">Código</span></a></div>
+                    </div>
+                </div>
+                <div class="project-card cascade-item">
+                    <div class="project-media-container">
+                        <!-- IMAGEN CORREGIDA CON ENLACE PÚBLICO -->
+                        <img src="img/sales-manager.png" alt="UI de CSharp Desktop Sales Manager" class="project-media">
+                        <div class="zoom-icon"><i class="fas fa-search-plus"></i></div>
+                    </div>
+                 <div class="project-info">
+                        <h3 data-key="p3_title">Gestor de Ventas de Escritorio</h3>
+                        <p data-key="p3_desc">Sistema de gestión de ventas para escritorio construido con C# WinForms. Se integra con MySQL para la base de datos y utiliza SAP Crystal Reports para la generación de informes dinámicos.</p>
+                        <div class="project-tags"><span>C#</span><span>WinForms</span><span>MySQL</span><span>SAP</span></div>
+                        <div class="project-links"><a href="https://github.com/Jorge-Cuevas90003/CSharp-Desktop-Sales-Manager" target="_blank"><i class="fab fa-github"></i> <span data-key="code_link">Código</span></a></div>
+                    </div>
+                </div>
+                <div class="project-card cascade-item">
+                    <div class="project-media-container">
+                        <!-- IMAGEN CORREGIDA CON ENLACE PÚBLICO -->
+                        <img src="img/runge-kutta.png" alt="Gráfica generada por el Runge-Kutta Solver" class="project-media">
+                        <div class="zoom-icon"><i class="fas fa-search-plus"></i></div>
+                    </div>
+                     <div class="project-info">
+                        <h3 data-key="p4_title">Solucionador de Ecuaciones Runge-Kutta</h3>
+                        <p data-key="p4_desc">Aplicación en C# que resuelve ecuaciones diferenciales ordinarias usando métodos numéricos (RK1, RK2, RK4). Presenta trazado dinámico de soluciones y análisis de error.</p>
+                        <div class="project-tags"><span>C#</span><span data-key="p4_tag2">Métodos Numéricos</span><span>WinForms</span></div>
+                        <div class="project-links"><a href="https://github.com/Jorge-Cuevas90003/CSharp-Runge-Kutta-Solver" target="_blank"><i class="fab fa-github"></i> <span data-key="code_link">Código</span></a></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="certificados" class="section-container">
+            <h2 class="section-title" data-text="04_CERTIFICADOS" data-key="certs_title">04_CERTIFICADOS</h2>
+            <div class="certs-grid">
+                <div class="cert-card cascade-item">
+                    <a href="https://drive.google.com/file/d/145fOhqh3-y7nstp2rAOuEXRBAsfM1Xaw/view?usp=sharing" target="_blank" class="cert-link">
+                        <i class="fas fa-database"></i><p data-key="cert1_title">Microsoft Office Specialist: Access 2016</p>
+                    </a>
+                    <a href="https://drive.google.com/file/d/145fOhqh3-y7nstp2rAOuEXRBAsfM1Xaw/view?usp=sharing" target="_blank" class="info-link" data-key="cert_view">Ver</a>
+                </div>
+                <div class="cert-card cascade-item">
+                    <a href="https://drive.google.com/file/d/1s-FQrxpGukSexAMF-SVApQqVLxrmI5sS/view?usp=sharing" target="_blank" class="cert-link">
+                        <i class="fas fa-file-word"></i><p data-key="cert2_title">Microsoft Office Specialist: Word 2016</p>
+                    </a>
+                    <a href="https://drive.google.com/file/d/1s-FQrxpGukSexAMF-SVApQqVLxrmI5sS/view?usp=sharing" target="_blank" class="info-link" data-key="cert_view">Ver</a>
+                </div>
+                <div class="cert-card cascade-item">
+                    <a href="https://drive.google.com/file/d/1yDsw-oEhDBgZCDGvudzMl7xkMoIHab0-/view?usp=sharing" target="_blank" class="cert-link">
+                        <i class="fas fa-file-alt"></i><p data-key="cert3_title">Diploma Progrentis PRO Nivel 1</p>
+                    </a>
+                    <a href="https://drive.google.com/file/d/1yDsw-oEhDBgZCDGvudzMl7xkMoIHab0-/view?usp=sharing" target="_blank" class="info-link" data-key="cert_view">Ver</a>
+                </div>
+                <div class="cert-card cascade-item">
+                    <a href="https://www.sololearn.com/certificates/CT-3BBFQBGX" target="_blank" class="cert-link">
+                        <i class="fas fa-scroll"></i><p>SoloLearn: SQL</p>
+                    </a>
+                    <a href="https://www.sololearn.com/certificates/CT-3BBFQBGX" target="_blank" class="info-link" data-key="cert_view">Ver</a>
+                </div>
+                <div class="cert-card cascade-item">
+                    <a href="https://www.sololearn.com/certificates/CT-GIHVNVOF" target="_blank" class="cert-link">
+                        <i class="fas fa-scroll"></i><p data-key="cert5_title">SoloLearn: Python for Beginners</p>
+                    </a>
+                    <a href="https://www.sololearn.com/certificates/CT-GIHVNVOF" target="_blank" class="info-link" data-key="cert_view">Ver</a>
+                </div>
+                <div class="cert-card cascade-item">
+                    <a href="https://www.sololearn.com/certificates/CC-QQ0PDQS2" target="_blank" class="cert-link">
+                        <i class="fas fa-scroll"></i><p data-key="cert6_title">SoloLearn: Tech for Everyone</p>
+                    </a>
+                    <a href="https://www.sololearn.com/certificates/CC-QQ0PDQS2" target="_blank" class="info-link" data-key="cert_view">Ver</a>
+                </div>
+                <div class="cert-card cascade-item">
+                    <a href="https://www.sololearn.com/certificates/CT-8FXPECPM" target="_blank" class="cert-link">
+                        <i class="fas fa-scroll"></i><p>SoloLearn: HTML</p>
+                    </a>
+                    <a href="https://www.sololearn.com/certificates/CT-8FXPECPM" target="_blank" class="info-link" data-key="cert_view">Ver</a>
+                </div>
+                <div class="cert-card cascade-item">
+                    <a href="https://www.sololearn.com/certificates/CT-8WYWCF1R" target="_blank" class="cert-link">
+                        <i class="fas fa-scroll"></i><p>SoloLearn: Java</p>
+                    </a>
+                    <a href="https://www.sololearn.com/certificates/CT-8WYWCF1R" target="_blank" class="info-link" data-key="cert_view">Ver</a>
+                </div>
+                <div class="cert-card cascade-item">
+                    <a href="https://www.sololearn.com/certificates/CT-JZ9JKDC3" target="_blank" class="cert-link">
+                        <i class="fas fa-scroll"></i><p>SoloLearn: CSS</p>
+                    </a>
+                    <a href="https://www.sololearn.com/certificates/CT-JZ9JKDC3" target="_blank" class="info-link" data-key="cert_view">Ver</a>
+                </div>
+                <div class="cert-card cascade-item">
+                    <a href="https://www.credly.com/go/Yco8D0D7" target="_blank" class="cert-link">
+                        <i class="fab fa-aws"></i><p>AWS Academy Graduate</p>
+                    </a>
+                    <a href="https://www.credly.com/go/Yco8D0D7" target="_blank" class="info-link" data-key="cert_view">Ver</a>
+                </div>
+                <div class="cert-card cascade-item">
+                    <a href="https://www.canva.com/design/DAGe7ZKCynU/BRYtH4hYMh-KjcwOVqt_Ww/view" target="_blank" class="cert-link">
+                        <i class="fas fa-palette"></i><p>Canva: 200 Designs</p>
+                    </a>
+                    <a href="https://www.canva.com/design/DAGe7ZKCynU/BRYtH4hYMh-KjcwOVqt_Ww/view" target="_blank" class="info-link" data-key="cert_view">Ver</a>
+                </div>
+                <div class="cert-card cascade-item">
+                    <a href="https://ti-user-certificates.s3.amazonaws.com/72109ec1-52dd-4663-9df4-754a8a1d0bff/f2d7b107-7ddd-41fb-9335-732bee396961-jorge-cuevas-ca4fec7c-0c78-42c8-b6b1-45e723e603c0-certificate.pdf" target="_blank" class="cert-link">
+                        <i class="fab fa-gitlab"></i><p>GitLab Remote Foundation</p>
+                    </a>
+                    <a href="https://ti-user-certificates.s3.amazonaws.com/72109ec1-52dd-4663-9df4-754a8a1d0bff/f2d7b107-7ddd-41fb-9335-732bee396961-jorge-cuevas-ca4fec7c-0c78-42c8-b6b1-45e723e603c0-certificate.pdf" target="_blank" class="info-link" data-key="cert_view_full">Ver Certificado</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="badges" class="section-container">
+            <h2 class="section-title" data-text="05_BADGES" data-key="badges_title">05_CYBERSECURITY BADGES</h2>
+            <div class="badges-grid">
+                <div class="cert-card cascade-item">
+                    <a href="https://tryhackme.com/DCuevas/badges/hash-cracker" target="_blank" class="cert-link"><i class="fas fa-trophy"></i><p>TryHackMe: Hash Cracker</p></a>
+                    <a href="https://tryhackme.com/DCuevas/badges/hash-cracker" target="_blank" class="info-link" data-key="cert_view">Ver</a>
+                </div>
+                <div class="cert-card cascade-item">
+                    <a href="https://tryhackme.com/DCuevas/badges/owasp-10" target="_blank" class="cert-link"><i class="fas fa-trophy"></i><p>TryHackMe: OWASP Top 10</p></a>
+                    <a href="https://tryhackme.com/DCuevas/badges/owasp-10" target="_blank" class="info-link" data-key="cert_view">Ver</a>
+                </div>
+                <div class="cert-card cascade-item">
+                    <a href="https://tryhackme.com/r/DCuevas/badges/blue" target="_blank" class="cert-link"><i class="fas fa-trophy"></i><p>TryHackMe: Blue</p></a>
+                    <a href="https://tryhackme.com/r/DCuevas/badges/blue" target="_blank" class="info-link" data-key="cert_view">Ver</a>
+                </div>
+                <div class="cert-card cascade-item">
+                    <a href="https://www.hackthebox.com/achievement/machine/2359387/648" target="_blank" class="cert-link"><i class="fas fa-shield-alt"></i><p>HackTheBox: Pwned Titanic</p></a>
+                    <a href="https://www.hackthebox.com/achievement/machine/2359387/648" target="_blank" class="info-link" data-key="cert_view">Ver</a>
+                </div>
+                <div class="cert-card cascade-item">
+                    <a href="https://www.hackthebox.com/achievement/machine/2359387/653" target="_blank" class="cert-link"><i class="fas fa-shield-alt"></i><p>HackTheBox: Pwned Code</p></a>
+                    <a href="https://www.hackthebox.com/achievement/machine/2359387/653" target="_blank" class="info-link" data-key="cert_view">Ver</a>
+                </div>
+                <div class="cert-card cascade-item">
+                    <a href="https://www.hackthebox.com/achievement/machine/2359387/642" target="_blank" class="cert-link"><i class="fas fa-shield-alt"></i><p>HackTheBox: Pwned EscapeTwo</p></a>
+                    <a href="https://www.hackthebox.com/achievement/machine/2359387/642" target="_blank" class="info-link" data-key="cert_view">Ver</a>
+                </div>
+            </div>
+        </section>
+
+         <section id="contacto" class="section-container">
+            <h2 class="section-title" data-text="06_CONTACTO" data-key="contact_title">06_CONTACTO</h2>
+            <div class="contact-content cascade-item">
+                <p data-key="contact_p">¿Interesado en colaborar o tienes alguna pregunta? <br> ¡Envíame una señal!</p>
+                <div class="contact-links">
+                    <a href="mailto:JDCM502@gmail.com" class="cta-button"><i class="fas fa-envelope"></i> Email</a>
+                    <a href="https://github.com/Jorge-Cuevas90003" target="_blank" class="cta-button"><i class="fab fa-github"></i> GitHub</a>
+                </div>
+                <div class="contact-links" style="margin-top: 1rem;">
+                    <a href="https://www.sololearn.com/en/profile/4770015" target="_blank" class="cta-button"><i class="fas fa-code"></i> Sololearn</a>
+                    <a href="https://app.hackthebox.com/profile/2359387" target="_blank" class="cta-button"><i class="fas fa-cube"></i> HackTheBox</a>
+                    <a href="https://tryhackme.com/p/DCuevas" target="_blank" class="cta-button"><i class="fas fa-shield-alt"></i> TryHackMe</a>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <p data-key="footer_text">© 2025 Jorge Cuevas. Todos los derechos reservados. // System Online</p>
+    </footer>
+
+    <div id="project-modal" class="modal">
+        <span class="close-modal">×</span>
+        <div class="modal-content-container"></div>
+    </div>
+    
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // --- 1. SELECCIÓN DE ELEMENTOS DEL DOM ---
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeToggleMob = document.getElementById('theme-toggle-mob');
+    const langEsBtn = document.getElementById('lang-es');
+    const langEnBtn = document.getElementById('lang-en');
+    const langEsBtnMob = document.getElementById('lang-es-mob');
+    const langEnBtnMob = document.getElementById('lang-en-mob');
+    const preloader = document.getElementById('preloader');
+    const typewriterElement = document.getElementById('typewriter');
+    const hamburgerBtn = document.getElementById('hamburger-btn');
+    const mobileNav = document.getElementById('mobile-nav');
+    const mobileNavLinks = mobileNav.querySelectorAll('a.nav-link');
+    const projectModal = document.getElementById('project-modal');
+
+    // --- 2. ESTADO Y TRADUCCIONES ---
+    const translations = {
+        es: {
+            page_title: "Portafolio // Jorge Cuevas :: Unified Experience",
+            preloader_text: "INICIALIZANDO SISTEMA...",
+            nav_about: "01_SOBRE_MI",
+            nav_skills: "02_HABILIDADES",
+            nav_projects: "03_PROYECTOS",
+            nav_certs: "04_CERTIFICADOS",
+            nav_badges: "05_BADGES",
+            nav_contact: "06_CONTACTO",
+            nav_about_mob: "01_SOBRE_MI",
+            nav_skills_mob: "02_HABILIDADES",
+            nav_projects_mob: "03_PROYECTOS",
+            nav_certs_mob: "04_CERTIFICADOS",
+            nav_badges_mob: "05_BADGES",
+            nav_contact_mob: "06_CONTACTO",
+            hero_title: 'Buenas, soy <span class="highlight">Jorge Cuevas</span>',
+            // CORRECCIÓN 1: Unificar el texto del typewriter
+            typewriter_text: ["Desarrollador de Software | Entusiasta de la Cuarta Revolución Industrial"],
+            hero_cta: ">> Ver mis Proyectos",
+            about_title: "01_SOBRE_MI",
+            about_subtitle: "Estudiante de Ingeniería en Computer Sciences & Desarrollador de Software",
+            about_p: "Apasionado por la tecnología, actualmente curso mi último año de Ingeniería en Ciencias de la Computación con un fuerte enfoque en desarrollo de software, inteligencia artificial y ciberseguridad. Me motiva crear soluciones tecnológicas innovadoras para resolver problemas del mundo real. En mi tiempo libre disfruto de los videojuegos y el ejercicio físico.",
+            skills_title: "02_HABILIDADES",
+            projects_title: "03_PROYECTOS DESTACADOS",
+            p1_title: "BareMetal OS para BeagleBone Black Rev C",
+            p1_desc: "Un sistema operativo multiproceso para la placa BeagleBone Black, desarrollado desde cero. Incluye un planificador cooperativo round-robin, gestión de memoria y una CLI ya integrada en la BeagleBone.",
+            p1_tag1: "Lenguajes de bajo nivel",
+            p1_tag2: "Sistemas Operativos",
+            p2_title: "Android Community Hub",
+            p2_desc: "Aplicación Android nativa que funciona como un sistema de gestión comunitaria, con votaciones en tiempo real, visor de documentos y módulos de transparencia financiera. Un proyecto de software completo que aborda una necesidad del mundo real.",
+            p2_tag2: "Android Nativo",
+            p3_title: "Gestor de Ventas de Escritorio",
+            p3_desc: "Sistema de gestión de ventas para escritorio construido con C# WinForms. Se integra con MySQL para la base de datos y utiliza SAP Crystal Reports para la generación de informes dinámicos.",
+            p4_title: "Solucionador de Ecuaciones Runge-Kutta",
+            p4_desc: "Aplicación en C# que resuelve ecuaciones diferenciales ordinarias usando métodos numéricos (RK1, RK2, RK4). Presenta trazado dinámico de soluciones y análisis de error.",
+            p4_tag2: "Métodos Numéricos",
+            code_link: "Código",
+            certs_title: "04_CERTIFICADOS",
+            cert1_title: "Microsoft Office Specialist: Access 2016",
+            cert2_title: "Microsoft Office Specialist: Word 2016",
+            cert3_title: "Diploma Progrentis PRO Nivel 1",
+            cert5_title: "SoloLearn: Python para principiantes",
+            cert6_title: "SoloLearn: Tecnología para todos",
+            cert_view: "Ver",
+            cert_view_full: "Ver Certificado",
+            badges_title: "05_CYBERSECURITY BADGES",
+            contact_title: "06_CONTACTO",
+            contact_p: "¿Interesado en colaborar o tienes alguna pregunta? <br> ¡Envíame una señal!",
+            footer_text: "© 2025 Jorge Cuevas. Todos los derechos reservados. // System Online",
+        },
+        en: {
+            page_title: "Portfolio // Jorge Cuevas :: Unified Experience",
+            preloader_text: "INITIALIZING SYSTEM...",
+            nav_about: "01_ABOUT_ME",
+            nav_skills: "02_SKILLS",
+            nav_projects: "03_PROJECTS",
+            nav_certs: "04_CERTIFICATES",
+            nav_badges: "05_BADGES",
+            nav_contact: "06_CONTACT",
+            nav_about_mob: "01_ABOUT_ME",
+            nav_skills_mob: "02_SKILLS",
+            nav_projects_mob: "03_PROJECTS",
+            nav_certs_mob: "04_CERTIFICATES",
+            nav_badges_mob: "05_BADGES",
+            nav_contact_mob: "06_CONTACT",
+            hero_title: 'Hi, I\'m <span class="highlight">Jorge Cuevas</span>',
+            // CORRECCIÓN 1: Unificar el texto del typewriter
+            typewriter_text: ["Software Developer | Fourth Industrial Revolution Enthusiast"],
+            hero_cta: ">> View my Projects",
+            about_title: "01_ABOUT_ME",
+            about_subtitle: "Computer Sciences Engineering Student & Software Developer",
+            about_p: "Passionate about technology, I am currently in my final year of Computer Science Engineering with a strong focus on software development, artificial intelligence, and cybersecurity. I am driven to create innovative technological solutions to solve real-world problems. In my free time, I enjoy video games and physical exercise.",
+            skills_title: "02_SKILLS",
+            projects_title: "03_FEATURED PROJECTS",
+            p1_title: "BareMetal OS for BeagleBone Black Rev C",
+            p1_desc: "A multiprocessing operating system for the BeagleBone Black board, developed from scratch. It includes a round-robin cooperative scheduler, memory management, and a CLI already integrated into the BeagleBone.",
+            p1_tag1: "Low-Level Languages",
+            p1_tag2: "Operating Systems",
+            p2_title: "Android Community Hub",
+            p2_desc: "A native Android application that functions as a community management system, with real-time voting, a document viewer, and financial transparency modules. A complete software project that addresses a real-world need.",
+            p2_tag2: "Native Android",
+            p3_title: "Desktop Sales Manager",
+            p3_desc: "A desktop sales management system built with C# WinForms. It integrates with MySQL for the database and uses SAP Crystal Reports for dynamic report generation.",
+            p4_title: "Runge-Kutta Equation Solver",
+            p4_desc: "A C# application that solves ordinary differential equations using numerical methods (RK1, RK2, RK4). It features dynamic solution plotting and error analysis.",
+            p4_tag2: "Numerical Methods",
+            code_link: "Code",
+            certs_title: "04_CERTIFICATES",
+            cert1_title: "Microsoft Office Specialist: Access 2016",
+            cert2_title: "Microsoft Office Specialist: Word 2016",
+            cert3_title: "Progrentis PRO Level 1 Diploma",
+            cert5_title: "SoloLearn: Python for Beginners",
+            cert6_title: "SoloLearn: Tech for Everyone",
+            cert_view: "View",
+            cert_view_full: "View Certificate",
+            badges_title: "05_CYBERSECURITY BADGES",
+            contact_title: "06_CONTACT",
+            contact_p: "Interested in collaborating or have a question? <br> Send me a signal!",
+            footer_text: "© 2025 Jorge Cuevas. All rights reserved. // System Online",
+        }
+    };
+
+    let currentLang = localStorage.getItem('language') || 'es';
+    let currentTheme = localStorage.getItem('theme') || 'dark';
+    let typewriterPhrases = [];
+    let phraseIndex = 0;
+    let typewriterIndex = 0;
+    let typewriterTimeout;
+
+    // --- 3. FUNCIONES PRINCIPALES ---
+    const setLanguage = (lang) => {
+        currentLang = lang;
+        localStorage.setItem('language', lang);
+        document.documentElement.lang = lang;
+        
+        document.querySelectorAll('[data-key]').forEach(element => {
+            const key = element.getAttribute('data-key');
+            if (translations[lang][key]) {
+                if (['hero_title', 'contact_p'].includes(key)) {
+                    element.innerHTML = translations[lang][key];
+                } else {
+                    element.textContent = translations[lang][key];
+                }
+            }
+        });
+        
+        [langEsBtn, langEsBtnMob].forEach(btn => btn.classList.toggle('active', lang === 'es'));
+        [langEnBtn, langEnBtnMob].forEach(btn => btn.classList.toggle('active', lang === 'en'));
+        
+        if (typewriterElement) {
+            typewriterPhrases = translations[lang].typewriter_text;
+            clearTimeout(typewriterTimeout);
+            startTypingAnimation();
+        }
+    };
+
+    const setTheme = (theme) => {
+        currentTheme = theme;
+        localStorage.setItem('theme', theme);
+        document.documentElement.setAttribute('data-theme', theme);
+        const isLight = theme === 'light';
+        themeToggle.checked = isLight;
+        themeToggleMob.checked = isLight;
+    };
+    
+    function startTypingAnimation() {
+        typewriterElement.textContent = "";
+        typewriterIndex = 0;
+        phraseIndex = 0;
+        type();
+    }
+
+    // CORRECCIÓN 2: Modificar la función `type` para que no borre el texto
+    function type() {
+        if (!typewriterPhrases.length) return;
+        const currentPhrase = typewriterPhrases[phraseIndex];
+        if (typewriterIndex < currentPhrase.length) {
+            typewriterElement.textContent += currentPhrase.charAt(typewriterIndex);
+            typewriterIndex++;
+            typewriterTimeout = setTimeout(type, 80);
+        } else {
+            // La animación ha terminado, no hacemos nada más.
+            clearTimeout(typewriterTimeout);
+        }
+    }
+
+    // La función `erase` ya no será llamada, pero no es necesario borrarla.
+    function erase() {
+        const currentPhrase = typewriterPhrases[phraseIndex];
+        if (typewriterIndex > 0) {
+            typewriterElement.textContent = currentPhrase.substring(0, typewriterIndex - 1);
+            typewriterIndex--;
+            typewriterTimeout = setTimeout(erase, 40);
+        } else {
+            phraseIndex = (phraseIndex + 1) % typewriterPhrases.length;
+            typewriterTimeout = setTimeout(type, 500);
+        }
+    }
+
+    // --- 4. ASIGNACIÓN DE EVENTOS Y LÓGICA ADICIONAL ---
+    window.addEventListener('load', () => setTimeout(() => preloader.classList.add('hidden'), 2000));
+    
+    themeToggle.addEventListener('change', () => setTheme(themeToggle.checked ? 'light' : 'dark'));
+    themeToggleMob.addEventListener('change', () => setTheme(themeToggleMob.checked ? 'light' : 'dark'));
+    langEsBtn.addEventListener('click', () => setLanguage('es'));
+    langEnBtn.addEventListener('click', () => setLanguage('en'));
+    langEsBtnMob.addEventListener('click', () => setLanguage('es'));
+    langEnBtnMob.addEventListener('click', () => setLanguage('en'));
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                const items = entry.target.querySelectorAll('.cascade-item');
+                items.forEach((item, i) => item.style.transitionDelay = `${i * 100}ms`);
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.section-container').forEach(section => observer.observe(section));
+
+    const isMobile = window.innerWidth <= 768;
+    if (!isMobile) {
+        const cursor = document.querySelector('.custom-cursor');
+        window.addEventListener('mousemove', e => {
+            cursor.style.left = `${e.clientX}px`;
+            cursor.style.top = `${e.clientY}px`;
+        });
+        document.querySelectorAll('a, button, .cert-link, .project-media-container, input, .slider').forEach(el => {
+            el.addEventListener('mouseover', () => cursor.classList.add('hover'));
+            el.addEventListener('mouseout', () => cursor.classList.remove('hover'));
+        });
+        
+        const canvas = document.getElementById('vortex-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        const mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+
+        function setupCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            particles = [];
+            const numberOfParticles = (canvas.width * canvas.height) / 7000;
+            for (let i = 0; i < numberOfParticles; i++) {
+                particles.push(new Particle(Math.random() * canvas.width, Math.random() * canvas.height));
+            }
+        }
+        window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+        
+        class Particle {
+            constructor(x, y) { this.x = x; this.y = y; this.radius = Math.random() * 1.5 + 1; this.baseColor = 'rgba(0, 255, 255, 0.8)'; this.speed = Math.random() * 0.01 + 0.005; }
+            draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--primary-color'); ctx.fill(); }
+            update() {
+                const dx = mouse.x - this.x; const dy = mouse.y - this.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance > 1) { this.x += dx * 0.01 * this.speed; this.y += dy * 0.01 * this.speed; }
+                const angle = Math.atan2(dy, dx);
+                this.x += Math.cos(angle + Math.PI / 2) * this.speed * distance * 0.1;
+                this.y += Math.sin(angle + Math.PI / 2) * this.speed * distance * 0.1;
+                if (this.x > canvas.width || this.x < 0 || this.y > canvas.height || this.y < 0) { const side = Math.floor(Math.random() * 4); if (side === 0) { this.x = 0; this.y = Math.random() * canvas.height; } else if (side === 1) { this.x = canvas.width; this.y = Math.random() * canvas.height; } else if (side === 2) { this.y = 0; this.x = Math.random() * canvas.width; } else { this.y = canvas.height; this.x = Math.random() * canvas.width; } }
+                this.draw();
+            }
+        }
+        function animate() { 
+            const color = document.documentElement.getAttribute('data-theme') === 'light' ? 'rgba(244, 244, 249, 0.1)' : 'rgba(13, 13, 26, 0.1)';
+            ctx.fillStyle = color; 
+            ctx.fillRect(0, 0, canvas.width, canvas.height); 
+            particles.forEach(p => p.update()); 
+            requestAnimationFrame(animate); 
+        }
+        window.addEventListener('resize', setupCanvas);
+        setupCanvas();
+        animate();
+    }
+
+    if (hamburgerBtn) {
+        hamburgerBtn.addEventListener('click', () => {
+            hamburgerBtn.classList.toggle('active');
+            mobileNav.classList.toggle('active');
+        });
+        mobileNavLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                hamburgerBtn.classList.remove('active');
+                mobileNav.classList.remove('active');
+                const targetId = link.getAttribute('href');
+                document.querySelector(targetId).scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+    }
+    
+    if (projectModal) {
+        const modalContentContainer = projectModal.querySelector('.modal-content-container');
+        const closeModalBtnProject = projectModal.querySelector('.close-modal');
+
+        document.querySelectorAll('.project-media-container').forEach(container => {
+            container.addEventListener('click', function() {
+                modalContentContainer.innerHTML = '';
+                const originalMedia = this.querySelector('.project-media');
+                const mediaElement = originalMedia.cloneNode(true);
+                
+                Array.from(originalMedia.attributes).forEach(attr => mediaElement.setAttribute(attr.name, attr.value));
+                if (mediaElement.tagName === 'VIDEO') { mediaElement.controls = true; mediaElement.autoplay = false; mediaElement.muted = false; }
+                
+                modalContentContainer.appendChild(mediaElement);
+                projectModal.classList.add('active');
+            });
+        });
+
+        const closeProjectModal = () => {
+            projectModal.classList.remove('active');
+            modalContentContainer.innerHTML = '';
+        };
+
+        closeModalBtnProject.addEventListener('click', closeProjectModal);
+        projectModal.addEventListener('click', (e) => { if (e.target === projectModal) closeProjectModal(); });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && projectModal.classList.contains('active')) closeProjectModal(); });
+    }
+
+    // --- 5. INICIALIZACIÓN ---
+    setTheme(currentTheme);
+    setLanguage(currentLang);
+    setTimeout(() => { if (typewriterElement) startTypingAnimation() }, 2500);
+
+});
+</script>
+</body>
+</html>
