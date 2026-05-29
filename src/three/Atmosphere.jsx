@@ -37,15 +37,17 @@ export default function Atmosphere() {
     const a = ERAS[i].palette;
     const b = ERAS[j].palette;
 
-    // background
+    // background — lifted out of pure black so the artifacts read against it
     cA.current.set(a.bg); cB.current.set(b.bg);
     bg.copy(cA.current).lerp(cB.current, t);
+    bg.offsetHSL(0, 0, 0.06);
     scene.background = bg;
 
-    // fog color + density
+    // fog color + density — thinner + lighter so objects aren't swallowed
     cA.current.set(a.fog); cB.current.set(b.fog);
     fog.color.copy(cA.current).lerp(cB.current, t);
-    fog.density = THREE.MathUtils.lerp(a.fogDensity, b.fogDensity, t);
+    fog.color.offsetHSL(0, 0, 0.05);
+    fog.density = THREE.MathUtils.lerp(a.fogDensity, b.fogDensity, t) * 0.5;
     scene.fog = fog;
 
     // accent → CSS custom properties (drive HUD)

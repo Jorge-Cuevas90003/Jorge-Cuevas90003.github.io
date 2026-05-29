@@ -35,8 +35,10 @@ export default function CameraRig() {
     // damping factor independent of frame rate
     const k = 1 - Math.pow(0.0015, dt);
 
-    const desiredX = px * 2.2;
-    const desiredY = 1.2 - py * 1.4;
+    // calm forward glide with subtle pointer parallax — the camera stays in
+    // service of the content rather than performing.
+    const desiredX = px * 1.8;
+    const desiredY = 1.2 - py * 1.1;
     const desiredZ = targetZ.current;
 
     camera.position.x += (desiredX - camera.position.x) * k;

@@ -18,6 +18,7 @@ const PATHS = {
   pin: <><path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11Z" /><circle cx="12" cy="10" r="2.4" /></>,
   briefcase: <><rect x="3" y="7" width="18" height="13" rx="2" /><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18" /></>,
   arrow: <path d="M12 5v14m0 0 6-6m-6 6-6-6" />,
+  arrowUpRight: <path d="M7 17 17 7M8 7h9v9" />,
 };
 
 export default function Icon({ name, size = 18, className = '', strokeWidth = 1.7 }) {

@@ -6,44 +6,45 @@ import { useStore } from '../store.js';
 import Icon from './Icon.jsx';
 
 /**
- * Sections — the scrollable HTML layer. Each era gets a full-viewport panel
- * whose layout is chosen by `era.kind`. A passive scroll listener converts
- * scrollTop into 0..1 progress + nearest era index and writes them to the
- * store, which the whole 3D scene reads from. Children tagged `.reveal`
- * animate in with a stagger driven by the inline --i custom property.
+ * Sections — the scrollable editorial layer. Each era is a full-viewport panel
+ * laid out on a Swiss grid: a number/kicker, a large Fraunces title that reveals
+ * character-by-character, and content typeset as clean hairline-ruled lists.
+ * A passive scroll listener feeds 0..1 progress + nearest era to the store.
  */
 
-/* hide a broken remote image gracefully instead of showing an alt box */
-const onImgError = (e) => { e.currentTarget.parentElement.dataset.broken = 'true'; };
+const onImgError = (e) => { e.currentTarget.closest('.project-thumb').dataset.broken = 'true'; };
+const cleanEyebrow = (s) => s.replace(/^\/\/\s*\d+\s*·\s*/, '');
+
+/** Splits text into word-masks of rising characters for the title reveal. */
+function Split({ text }) {
+  let ci = 0;
+  const words = text.split(' ');
+  return (
+    <span className="split" aria-label={text}>
+      {words.map((word, wi) => (
+        <span className="t-word" key={wi} aria-hidden="true">
+          {[...word].map((ch, k) => (
+            <span className="t-char" style={{ '--ci': ci++ }} key={k}>{ch}</span>
+          ))}
+        </span>
+      ))}
+    </span>
+  );
+}
 
 function Reveal({ i = 0, className = '', as: Tag = 'div', ...rest }) {
   return <Tag className={`reveal ${className}`} style={{ '--i': i }} {...rest} />;
 }
 
-/* ── per-kind panel bodies ─────────────────────────────────────── */
+/* ── per-kind bodies ───────────────────────────────────────────── */
 
 function About({ c }) {
   return (
     <>
-      <Reveal i={2} className="about-head">
-        <span className="about-photo" data-broken={c.photo ? 'false' : 'true'}>
-          {c.photo && <img src={c.photo} alt={c.name} loading="lazy" onError={onImgError} />}
-          <span className="about-photo-fallback">{c.name.split(' ').map((w) => w[0]).join('')}</span>
-        </span>
-        <span className="about-id">
-          <strong>{c.name}</strong>
-          <em>{c.role}</em>
-        </span>
-      </Reveal>
-      {c.paragraphs.map((p, k) => (
-        <Reveal as="p" key={k} i={3 + k} className="panel-body">{p}</Reveal>
-      ))}
-      <Reveal i={3 + c.paragraphs.length} className="fact-grid">
+      {c.paragraphs.map((p, k) => <Reveal as="p" key={k} i={2 + k} className="panel-body">{p}</Reveal>)}
+      <Reveal i={2 + c.paragraphs.length} className="facts">
         {c.facts.map((f) => (
-          <span key={f.k} className="fact">
-            <em>{f.k}</em>
-            <strong>{f.v}</strong>
-          </span>
+          <div className="row" key={f.k}><em>{f.k}</em><strong>{f.v}</strong></div>
         ))}
       </Reveal>
     </>
@@ -53,32 +54,21 @@ function About({ c }) {
 function Experience({ c }) {
   return c.jobs.map((job, k) => (
     <Reveal key={k} i={2 + k} className="job">
-      <span className="job-top">
-        <Icon name="briefcase" size={18} />
-        <span>
-          <strong>{job.role}</strong>
-          <em>{job.company}</em>
-        </span>
-        <span className="job-period">{job.period}</span>
-      </span>
-      <span className="job-place"><Icon name="pin" size={13} /> {job.place}</span>
-      <ul className="job-points">
-        {job.points.map((p, j) => <li key={j}>{p}</li>)}
-      </ul>
-      <span className="chip-row">
-        {job.stack.map((s) => <span key={s} className="chip">{s}</span>)}
-      </span>
+      <div className="job-head">
+        <strong>{job.role}</strong><span className="at">—</span><span className="co">{job.company}</span>
+      </div>
+      <div className="job-meta"><span>{job.period}</span><span>{job.place}</span></div>
+      <ul className="job-points">{job.points.map((p, j) => <li key={j}>{p}</li>)}</ul>
+      <div className="tags">{job.stack.map((s) => <span key={s}>{s}</span>)}</div>
     </Reveal>
   ));
 }
 
 function Skills({ c }) {
   return c.groups.map((g, k) => (
-    <Reveal key={g.name} i={2 + k} className="skill-group">
-      <em className="skill-group-name">{g.name}</em>
-      <span className="chip-row">
-        {g.items.map((s) => <span key={s} className="chip">{s}</span>)}
-      </span>
+    <Reveal key={g.name} i={2 + k} className="skill-row">
+      <span className="grp">{g.name}</span>
+      <span className="items">{g.items.map((s) => <span key={s}>{s}</span>)}</span>
     </Reveal>
   ));
 }
@@ -86,20 +76,18 @@ function Skills({ c }) {
 function Projects({ c, ui }) {
   return c.projects.map((p, k) => (
     <Reveal key={p.name} i={2 + k} className="project">
+      <div className="project-info">
+        <span className="project-num">{String(k + 1).padStart(2, '0')}</span>
+        <h3 className="project-name">{p.name}</h3>
+        <p className="project-desc">{p.desc}</p>
+        <div className="tags" style={{ marginBottom: '0.9rem' }}>{p.tags.map((t) => <span key={t}>{t}</span>)}</div>
+        <a className="project-repo" href={p.repo} target="_blank" rel="noopener noreferrer">
+          {ui.viewCode} <Icon name="arrowUpRight" size={14} />
+        </a>
+      </div>
       <span className="project-thumb" data-broken="false">
         <img src={p.img} alt={p.name} loading="lazy" onError={onImgError} />
-        <span className="project-thumb-fallback"><Icon name="code" size={26} /></span>
-      </span>
-      <span className="project-body">
-        <strong className="project-name">{p.name}</strong>
-        <span className="project-desc">{p.desc}</span>
-        <span className="chip-row">
-          {p.tags.map((tg) => <span key={tg} className="chip">{tg}</span>)}
-        </span>
-        <a className="project-repo" href={p.repo} target="_blank" rel="noopener noreferrer">
-          <Icon name="github" size={15} /> {ui.viewCode}
-          <Icon name="external" size={13} className="trail" />
-        </a>
+        <span className="project-thumb-fallback"><Icon name="code" size={22} /></span>
       </span>
     </Reveal>
   ));
@@ -108,26 +96,21 @@ function Projects({ c, ui }) {
 function Certs({ c }) {
   return (
     <>
-      <div className="cert-grid">
-        {c.certGroups.map((g, k) => (
-          <Reveal key={g.name} i={2 + k} className="cert-group">
-            <em className="cert-group-name">{g.name}</em>
-            <ul>{g.items.map((it) => <li key={it}>{it}</li>)}</ul>
-          </Reveal>
-        ))}
-      </div>
-      <Reveal i={2 + c.certGroups.length} className="badge-block">
-        <em className="cert-group-name">{c.badgesLabel}</em>
+      {c.certGroups.map((g, k) => (
+        <Reveal key={g.name} i={2 + k} className="cert-row">
+          <span className="grp">{g.name}</span>
+          <ul>{g.items.map((it) => <li key={it}>{it}</li>)}</ul>
+        </Reveal>
+      ))}
+      <Reveal i={2 + c.certGroups.length} className="badges">
+        <div className="b-title">{c.badgesLabel}</div>
         {c.badges.map((b) => (
-          <span key={b.plat} className="badge-line">
-            <span className="badge-plat">
-              <Icon name={b.plat === 'HackTheBox' ? 'target' : 'shield'} size={14} />
-              {b.plat}
+          <div className="badge-line" key={b.plat}>
+            <span className="plat">
+              <Icon name={b.plat === 'HackTheBox' ? 'target' : 'shield'} size={14} />{b.plat}
             </span>
-            <span className="chip-row">
-              {b.items.map((it) => <span key={it} className="chip chip-badge">{it}</span>)}
-            </span>
-          </span>
+            <div className="tags">{b.items.map((it) => <span key={it}>{it}</span>)}</div>
+          </div>
         ))}
       </Reveal>
     </>
@@ -138,26 +121,21 @@ function Contact({ c }) {
   return (
     <>
       <Reveal as="p" i={2} className="panel-body">{c.body}</Reveal>
-      <div className="contact-grid">
+      <Reveal i={3} className="contact-list">
         {SOCIALS.map((s, k) => (
-          <Reveal
-            as="a"
+          <a
+            className="contact-row"
             key={s.id}
-            i={3 + k}
-            className={`contact-card${s.primary ? ' primary' : ''}`}
             href={s.href}
             target={s.href.startsWith('http') ? '_blank' : undefined}
             rel={s.href.startsWith('http') ? 'noopener noreferrer' : undefined}
           >
-            <Icon name={s.icon} size={20} />
-            <span>
-              <strong>{s.label}</strong>
-              <em>{s.value}</em>
-            </span>
-            <Icon name="arrow" size={15} className="contact-arrow" />
-          </Reveal>
+            <span className="c-label">{s.label}</span>
+            <span className="c-val">{s.value}</span>
+            <Icon name="arrowUpRight" size={18} />
+          </a>
         ))}
-      </div>
+      </Reveal>
     </>
   );
 }
@@ -205,8 +183,12 @@ export default function Sections() {
             data-index={i}
           >
             <article className={`panel panel-${era.kind}`}>
-              <Reveal as="span" i={0} className="panel-eyebrow">{c.eyebrow}</Reveal>
-              <Reveal as="h2" i={1} className="panel-title">{c.title}</Reveal>
+              <Reveal i={0} className="kicker">
+                <span className="k-num">{String(i + 1).padStart(2, '0')}</span>
+                <span className="k-rule" />
+                <span className="k-label">{cleanEyebrow(c.eyebrow)}</span>
+              </Reveal>
+              <h2 className="panel-title"><Split text={c.title} /></h2>
               <Reveal as="p" i={1} className="panel-lead">{c.lead}</Reveal>
               <Body c={c} ui={ui} />
             </article>

@@ -40,6 +40,7 @@ export default function Scene() {
       dpr={[1, 1.8]}
       gl={{ antialias: true, powerPreference: 'high-performance' }}
       camera={{ position: [0, 1.2, 12], fov: 50, near: 0.1, far: 400 }}
+      onCreated={({ gl }) => { gl.toneMappingExposure = 1.25; }}
     >
       <Atmosphere />
       <CameraRig />
@@ -48,12 +49,12 @@ export default function Scene() {
       </Suspense>
       <EffectComposer disableNormalPass>
         <Bloom
-          intensity={0.85}
-          luminanceThreshold={0.2}
-          luminanceSmoothing={0.4}
+          intensity={0.55}
+          luminanceThreshold={0.3}
+          luminanceSmoothing={0.5}
           mipmapBlur
         />
-        <Vignette eskil={false} offset={0.25} darkness={0.85} />
+        <Vignette eskil={false} offset={0.4} darkness={0.4} />
       </EffectComposer>
     </Canvas>
   );
