@@ -1,0 +1,26 @@
+{
+  "name": "portafolio-3d",
+  "private": true,
+  "version": "0.2.0",
+  "type": "module",
+  "description": "Portafolio 3D inmersivo de Jorge Cuevas — línea de tiempo evolutiva en 6 ecosistemas vivos con React Three Fiber, drei y postprocessing.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@react-three/drei": "^9.114.3",
+    "@react-three/fiber": "^8.17.10",
+    "@react-three/postprocessing": "^2.16.3",
+    "gsap": "^3.12.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "three": "^0.168.0",
+    "zustand": "^4.5.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.3",
+    "vite": "^5.3.0"
+  }
+}
